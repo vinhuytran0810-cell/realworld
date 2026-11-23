@@ -11,6 +11,10 @@ module.exports = {
     'json-summary'
   ],
   coverageThreshold: {
+    // Keep untested helper branches from being hidden by other files.
+    './lib.js': {
+      branches: 80
+    },
     global: {
       branches: 80,
       functions: 80,
