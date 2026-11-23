@@ -74,6 +74,22 @@ describe('Unit Tests: Helpers & Utilities (lib.js)', () => {
     });
   });
 
+  describe('formatArticleSlug', () => {
+    test('should convert titles to lowercase hyphenated slugs', () => {
+      expect(lib.formatArticleSlug('Hello World From HCMUS'))
+        .toBe('hello-world-from-hcmus');
+      expect(lib.formatArticleSlug('  Software   Testing\tLab  '))
+        .toBe('software-testing-lab');
+      expect(lib.formatArticleSlug(123)).toBe('123');
+    });
+
+    test('should return an empty string for falsy input', () => {
+      expect(lib.formatArticleSlug('')).toBe('');
+      expect(lib.formatArticleSlug(null)).toBe('');
+      expect(lib.formatArticleSlug(undefined)).toBe('');
+    });
+  });
+
   describe('validateParam', () => {
     test('8. should return defaultValue if parameter is undefined in object', () => {
       const res = lib.validateParam({}, 'limit', lib.validatePositiveInteger, 20);
@@ -147,6 +163,19 @@ describe('Unit Tests: Helpers & Utilities (lib.js)', () => {
   });
 
   describe('deleteOldestForDemo', () => {
+    test('should leave rows untouched when demo mode is disabled', async () => {
+      const originalIsDemo = config.isDemo;
+      const mockModel = { findAll: jest.fn(), destroy: jest.fn() };
+      config.isDemo = false;
+      try {
+        await lib.deleteOldestForDemo(mockModel);
+        expect(mockModel.findAll).not.toHaveBeenCalled();
+        expect(mockModel.destroy).not.toHaveBeenCalled();
+      } finally {
+        config.isDemo = originalIsDemo;
+      }
+    });
+
     test('15. should delete oldest rows when demo mode is active and excess rows exist', async () => {
       const originalIsDemo = config.isDemo;
       config.isDemo = true;
